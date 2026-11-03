@@ -1,5 +1,11 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { addIcons } from 'ionicons';
+import {
+  addCircleOutline,
+  cubeOutline,
+  informationCircleOutline,
+} from 'ionicons/icons';
 
 import { TabsPage } from './tabs.page';
 
@@ -8,9 +14,15 @@ describe('TabsPage', () => {
   let fixture: ComponentFixture<TabsPage>;
 
   beforeEach(async () => {
+    addIcons({
+      'add-circle-outline': addCircleOutline,
+      'cube-outline': cubeOutline,
+      'information-circle-outline': informationCircleOutline,
+    });
+
     await TestBed.configureTestingModule({
-      declarations: [TabsPage],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      imports: [TabsPage],
+      providers: [provideRouter([])],
     }).compileComponents();
   });
 
@@ -22,5 +34,13 @@ describe('TabsPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should label the third tab About', () => {
+    const tabLabel = fixture.nativeElement.querySelector(
+      'ion-tab-button[tab="about"] ion-label',
+    );
+
+    expect(tabLabel.textContent.trim()).toBe('About');
   });
 });

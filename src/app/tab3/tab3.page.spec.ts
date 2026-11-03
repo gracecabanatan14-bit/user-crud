@@ -1,7 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterModule } from '@angular/router';
 
-import { Tab3PageModule } from './tab3.module';
 import { Tab3Page } from './tab3.page';
 
 describe('Tab3Page', () => {
@@ -10,7 +8,7 @@ describe('Tab3Page', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Tab3PageModule, RouterModule.forRoot([])]
+      imports: [Tab3Page],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Tab3Page);

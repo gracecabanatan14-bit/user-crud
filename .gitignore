@@ -68,3 +68,9 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Build artifacts / local outputs
+build-output.txt
+*.tsbuildinfo
+.env
+.env.local
