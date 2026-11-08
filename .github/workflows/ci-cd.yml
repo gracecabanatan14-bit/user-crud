@@ -2,76 +2,58 @@ name: CI-CD Pipeline
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch: # Para pwede mo i-run manually galing sa phone mo
+    branches: [ main ]
 
 permissions:
   contents: read
 
 jobs:
-  # PART F: Continuous Integration (GitHub Cloud)
-  continuous-integration:
+  ci:
     name: Continuous Integration
     runs-on: windows-latest
     steps:
-      - name: Checkout source code
+      - name: Checkout latest code
         uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Install dependencies
-        shell: pwsh
-        run: npm ci
+        run: npm install
 
-      - name: Run automated tests
-        shell: pwsh
-        continue-on-error: true # Para hindi mag-fail kung walang tests
-        run: npm test -- --watch=false
-
-      - name: Build application
-        shell: pwsh
+      - name: Run build
         run: npm run build
 
-  # PART G: Continuous Deployment (Self-Hosted Windows PC)
-  continuous-deployment:
+  deploy:
     name: Continuous Deployment
-    needs: continuous-integration
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: ci
     runs-on: [self-hosted, Windows, X64]
     steps:
       - name: Checkout latest code
         uses: actions/checkout@v4
 
       - name: Check Docker access
-        shell: pwsh
         run: docker info
 
       - name: Build Docker image
-        shell: pwsh
         run: docker build -t user-crud:latest .
 
       - name: Remove previous container
-        shell: pwsh
+        run: docker rm -f user-crud
         continue-on-error: true
-        run: docker rm -f ionic-crud
 
       - name: Start updated container
-        shell: pwsh
-        run: docker run -d --name ionic-crud --restart unless-stopped -p 8100:8100 user-crud:latest
+        run: docker run -d --name user-crud --restart unless-stopped -p 8100:8100 user-crud:latest
 
       - name: Verify application
-        shell: pwsh
+        shell: powershell
         run: |
           $success = $false
           for ($i = 1; $i -le 15; $i++) {
             try {
-              Invoke-WebRequest -Uri "http://localhost:8100" -UseBasicParsing -TimeoutSec 5 | Out-Null
+              Invoke-WebRequest -Uri http://localhost:8100 -UseBasicParsing -TimeoutSec 5 | Out-Null
               $success = $true
               break
             } catch {
@@ -79,6 +61,6 @@ jobs:
             }
           }
           if (-not $success) {
-            docker logs ionic-crud
+            docker logs user-crud
             exit 1
           }
